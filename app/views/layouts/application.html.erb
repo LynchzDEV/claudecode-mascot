@@ -1,22 +1,74 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title><%= content_for(:title) || "Claude Mascot" %></title>
+    <!-- Primary Meta Tags -->
+    <title><%= content_for(:title) || "Claude Code Mascot - Real-time AI Coding Companion" %></title>
+    <meta name="title" content="Claude Code Mascot - Real-time AI Coding Companion">
+    <meta name="description" content="A real-time visual companion for Claude Code CLI. Watch your AI coding assistant come alive with animated eyes that respond to thinking, working, and coding states. Free and open source.">
+    <meta name="keywords" content="Claude Code, AI coding, programming assistant, developer tools, code companion, real-time visualization, Claude AI, coding mascot, 8-bit animation">
+    <meta name="author" content="Claude Code Mascot">
+    <meta name="robots" content="index, follow">
     <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="<%= request.original_url %>">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= request.original_url %>">
+    <meta property="og:title" content="Claude Code Mascot - Real-time AI Coding Companion">
+    <meta property="og:description" content="Watch your AI coding assistant come alive! Real-time animated mascot that shows what Claude Code is thinking and doing.">
+    <meta property="og:image" content="<%= request.base_url %>/og-image.png">
+    <meta property="og:site_name" content="Claude Code Mascot">
+    <meta property="og:locale" content="en_US">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="<%= request.original_url %>">
+    <meta name="twitter:title" content="Claude Code Mascot - Real-time AI Coding Companion">
+    <meta name="twitter:description" content="Watch your AI coding assistant come alive! Real-time animated mascot that shows what Claude Code is thinking and doing.">
+    <meta name="twitter:image" content="<%= request.base_url %>/twitter-card.png">
+    <meta name="twitter:creator" content="@claude_ai">
+
+    <!-- PWA & Mobile -->
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="application-name" content="Claude Mascot">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#D77757">
+
+    <!-- Icons & Favicons -->
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+
+    <!-- Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Claude Code Mascot",
+      "description": "Real-time visual companion for Claude Code CLI with animated eyes showing AI coding states",
+      "url": "<%= request.base_url %>",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "Claude Code"
+      }
+    }
+    </script>
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= yield :head %>
-
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>

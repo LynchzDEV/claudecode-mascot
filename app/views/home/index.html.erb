@@ -1,16 +1,19 @@
-<div class="h-screen w-screen flex items-center justify-center gap-48" style="background-color: #D77757;">
-  <div class="mascot-wrapper">
-    <div class="eyes-container" id="eyes">
-      <div class="eye left-eye" id="left-eye"></div>
-      <div class="eye right-eye" id="right-eye"></div>
+<main class="h-screen w-screen flex items-center justify-center gap-48" style="background-color: #D77757;" role="main" aria-label="Claude Code Mascot">
+  <!-- Visually hidden heading for SEO and accessibility -->
+  <h1 class="sr-only">Claude Code Mascot - Real-time AI Coding Companion</h1>
+
+  <div class="mascot-wrapper" role="img" aria-label="Claude mascot with animated eyes showing coding status">
+    <div class="eyes-container" id="eyes" title="Click to see happy eyes!" aria-label="Mascot eyes">
+      <div class="eye left-eye" id="left-eye" aria-hidden="true"></div>
+      <div class="eye right-eye" id="right-eye" aria-hidden="true"></div>
     </div>
   </div>
 
   <!-- Context Subtitle at Bottom -->
-  <div class="context-tooltip" id="context-tooltip"></div>
+  <div class="context-tooltip" id="context-tooltip" role="status" aria-live="polite" aria-label="Current activity status"></div>
 
   <!-- 8-bit Settings Icon -->
-  <button class="settings-btn" id="settings-btn" title="Settings">
+  <button class="settings-btn" id="settings-btn" title="Open settings" aria-label="Open settings panel">
     <svg class="settings-icon" viewBox="0 0 16 16" fill="currentColor">
       <!-- 8-bit gear icon -->
       <rect x="6" y="0" width="4" height="2"/>
@@ -121,9 +124,22 @@
       </div>
     </div>
   </div>
-</div>
+</main>
 
 <style>
+  /* Screen reader only - hide visually but keep for SEO */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
   /* Global background to prevent white bars */
