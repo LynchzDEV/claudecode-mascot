@@ -1,0 +1,443 @@
+<div class="h-screen w-screen flex items-center justify-center gap-48" style="background-color: #D77757;">
+  <div class="eyes-container" id="eyes">
+    <div class="eye left-eye" id="left-eye"></div>
+    <div class="eye right-eye" id="right-eye"></div>
+  </div>
+</div>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+  .eyes-container {
+    display: flex;
+    gap: 12rem;
+    image-rendering: pixelated;
+  }
+
+  .eye {
+    width: 64px;
+    height: 192px;
+    background-color: #000;
+    border-radius: 0;
+    box-shadow:
+      8px 0 0 #000,
+      -8px 0 0 #000;
+    transition: all 0.1s steps(2);
+    position: relative;
+  }
+
+  /* Create pixel art shimmer effect */
+  .eye::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: rgba(255, 255, 255, 0.3);
+    top: 32px;
+    left: 8px;
+    opacity: 0;
+  }
+
+  .eye.shimmer::after {
+    animation: shimmer 0.3s steps(2);
+  }
+
+
+  /* Classic pixel art animations - Enhanced with natural motion */
+  .eye.blink { animation: blink 0.15s steps(2); }
+  .eye.double-blink { animation: doubleBlink 0.4s steps(2); }
+  .eye.sleepy { animation: sleepy 1.2s steps(8); }
+  .eye.look-left { animation: lookLeft 0.5s steps(6); }
+  .eye.look-right { animation: lookRight 0.5s steps(6); }
+  .eye.look-up { animation: lookUp 0.4s steps(5); }
+  .eye.squint { animation: squint 0.5s steps(5); }
+  .eye.wide { animation: wide 0.4s steps(5); }
+
+  /* Emotion state animations - TRUE 8-bit chunky frames */
+  .eye.state-thinking { animation: thinking 1.6s steps(6) infinite; }
+  .eye.state-working { animation: working 2s steps(8) infinite; }
+  .eye.state-sleeping {
+    height: 32px;
+    width: 80px;
+    animation: sleeping 2.5s steps(8) infinite;
+  }
+  .eye.state-happy { animation: happy 0.8s steps(6) infinite; }
+  .eye.state-error { animation: error 0.3s steps(3) infinite; }
+
+  @keyframes blink {
+    0%, 100% { height: 192px; }
+    50% { height: 8px; }
+  }
+
+  @keyframes doubleBlink {
+    0%, 100% { height: 192px; }
+    20%, 60% { height: 8px; }
+    40%, 80% { height: 192px; }
+  }
+
+  /* Sleepy: Heavy eyelids drooping - fighting sleep */
+  @keyframes sleepy {
+    0% { height: 192px; transform: translateY(0); }
+    /* Eyes start drooping */
+    20% { height: 128px; transform: translateY(32px); }
+    /* Almost closed - fighting it */
+    40% { height: 64px; transform: translateY(64px); }
+    /* Jolt awake slightly */
+    50% { height: 96px; transform: translateY(48px); }
+    /* Droop again */
+    70% { height: 64px; transform: translateY(64px); }
+    /* Force eyes back open */
+    85% { height: 160px; transform: translateY(16px); }
+    100% { height: 192px; transform: translateY(0); }
+  }
+
+  /* Look Left: Natural glance with anticipation */
+  @keyframes lookLeft {
+    0% { transform: translateX(0) translateY(0); }
+    /* Slight anticipation - look right first */
+    15% { transform: translateX(8px) translateY(0); }
+    /* Snap to look left */
+    30% { transform: translateX(-32px) translateY(-8px); }
+    /* Hold gaze */
+    50% { transform: translateX(-32px) translateY(-8px); }
+    /* Return with slight overshoot */
+    75% { transform: translateX(8px) translateY(0); }
+    /* Settle */
+    100% { transform: translateX(0) translateY(0); }
+  }
+
+  /* Look Right: Natural glance with anticipation */
+  @keyframes lookRight {
+    0% { transform: translateX(0) translateY(0); }
+    /* Slight anticipation - look left first */
+    15% { transform: translateX(-8px) translateY(0); }
+    /* Snap to look right */
+    30% { transform: translateX(32px) translateY(-8px); }
+    /* Hold gaze */
+    50% { transform: translateX(32px) translateY(-8px); }
+    /* Return with slight overshoot */
+    75% { transform: translateX(-8px) translateY(0); }
+    /* Settle */
+    100% { transform: translateX(0) translateY(0); }
+  }
+
+  /* Look Up: Curious upward gaze with slight squint */
+  @keyframes lookUp {
+    0% { transform: translateY(0); height: 192px; }
+    /* Slight squint as looking up */
+    25% { transform: translateY(-16px); height: 176px; }
+    /* Full upward gaze */
+    40%, 60% { transform: translateY(-32px); height: 168px; }
+    /* Relax back */
+    80% { transform: translateY(-8px); height: 184px; }
+    100% { transform: translateY(0); height: 192px; }
+  }
+
+  /* Squint: Suspicious narrowing - pure 8-bit */
+  @keyframes squint {
+    0%, 100% { height: 192px; transform: translateY(0); }
+    /* Start narrowing */
+    20% { height: 128px; transform: translateY(32px); }
+    /* Full suspicious squint */
+    35%, 65% { height: 64px; transform: translateY(64px); }
+    /* Relax */
+    80% { height: 128px; transform: translateY(32px); }
+  }
+
+  /* Wide: Surprised eyes - pure 8-bit */
+  @keyframes wide {
+    0%, 100% { height: 192px; transform: translateY(0); }
+    /* Eyes open wide */
+    25% { height: 224px; transform: translateY(-16px); }
+    /* Hold surprised */
+    50%, 75% { height: 216px; transform: translateY(-8px); }
+  }
+
+  /* Shimmer: Simple highlight blink - pure 8-bit */
+  @keyframes shimmer {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* State animations - TRUE 8-BIT pixel art style */
+  
+  /* Thinking: Pondering look - 6 discrete frames, pixel-snapped */
+  @keyframes thinking {
+    /* Frame 1: Normal */
+    0%, 100% { 
+      transform: translateY(0) translateX(0); 
+      height: 192px;
+    }
+    /* Frame 2: Look up */
+    16.66% { 
+      transform: translateY(-16px) translateX(0); 
+      height: 176px;
+    }
+    /* Frame 3: Think hard - squint + drift right */
+    33.33% { 
+      transform: translateY(-24px) translateX(8px); 
+      height: 160px;
+    }
+    /* Frame 4: Hold thought */
+    50% { 
+      transform: translateY(-24px) translateX(8px); 
+      height: 160px;
+    }
+    /* Frame 5: Drift left considering */
+    66.66% { 
+      transform: translateY(-16px) translateX(-8px); 
+      height: 168px;
+    }
+    /* Frame 6: Settle back */
+    83.33% { 
+      transform: translateY(-8px) translateX(0); 
+      height: 184px;
+    }
+  }
+
+  /* Working: Focused look - 8 discrete frames, pixel-snapped */
+  @keyframes working {
+    /* Frame 1-2: Focused narrow gaze */
+    0%, 12.5% { 
+      height: 160px;
+      transform: translateY(16px);
+    }
+    /* Frame 3-4: Deep focus */
+    25%, 37.5% { 
+      height: 152px;
+      transform: translateY(24px);
+    }
+    /* Frame 5: Quick blink */
+    50% { 
+      height: 16px;
+      transform: translateY(88px);
+    }
+    /* Frame 6: Eyes back open */
+    62.5% { 
+      height: 152px;
+      transform: translateY(24px);
+    }
+    /* Frame 7-8: Continue focused */
+    75%, 87.5% { 
+      height: 160px;
+      transform: translateY(16px);
+    }
+  }
+
+  /* Happy: Joyful squinting eyes - pure 8-bit */
+  @keyframes happy {
+    0%, 100% { 
+      height: 192px; 
+      transform: translateY(0);
+    }
+    /* Squint happily */
+    25%, 75% { 
+      height: 96px; 
+      transform: translateY(48px);
+    }
+    /* Hold happy squint */
+    50% { 
+      height: 80px; 
+      transform: translateY(56px);
+    }
+  }
+
+  /* Error: Simple 8-bit shake - just 3 discrete positions */
+  @keyframes error {
+    /* Normal */
+    0%, 100% { transform: translateX(0); }
+    /* Snap left */
+    33% { transform: translateX(-16px); }
+    /* Snap right */
+    66% { transform: translateX(16px); }
+  }
+
+  /* Sleeping: Simple breathing - wider eyes (80px × 16px) */
+  @keyframes sleeping {
+    0%, 100% { 
+      transform: translateY(0); 
+    }
+    /* Inhale - slight rise */
+    50% { 
+      transform: translateY(-8px); 
+    }
+  }
+</style>
+
+<script>
+  let currentState = 'idle';
+  let idleAnimationPaused = false;
+  let inactivityTimer = null;
+  let workingStateTimer = null; // Timer for working/thinking state timeout
+  let claudeCodeSessionActive = false; // Track if ClaudeCode CLI is running
+  const INACTIVITY_TIMEOUT = 120000; // 2 minutes in milliseconds
+  const WORKING_STATE_TIMEOUT = 5000; // 5 seconds - if no new events, return to idle
+
+  const animations = [
+    { name: 'blink', duration: 150, weight: 8, sync: true },
+    { name: 'double-blink', duration: 400, weight: 3, sync: true },
+    { name: 'sleepy', duration: 1200, weight: 0.2, sync: true },
+    { name: 'look-left', duration: 600, weight: 0.8, sync: true },
+    { name: 'look-right', duration: 600, weight: 0.8, sync: true },
+    { name: 'look-up', duration: 500, weight: 0.4, sync: true },
+    { name: 'squint', duration: 600, weight: 0.4, sync: true },
+    { name: 'wide', duration: 400, weight: 0.4, sync: true },
+    { name: 'shimmer', duration: 300, weight: 0.6, sync: false },
+  ];
+
+  function pickAnimation() {
+    const totalWeight = animations.reduce((sum, a) => sum + a.weight, 0);
+    let random = Math.random() * totalWeight;
+    for (const anim of animations) {
+      random -= anim.weight;
+      if (random <= 0) return anim;
+    }
+    return animations[0];
+  }
+
+  function playRandomAnimation() {
+    if (idleAnimationPaused) return;
+
+    const leftEye = document.getElementById('left-eye');
+    const rightEye = document.getElementById('right-eye');
+    const anim = pickAnimation();
+
+    // Remove all animation classes
+    animations.forEach(a => {
+      leftEye.classList.remove(a.name);
+      rightEye.classList.remove(a.name);
+    });
+
+    void leftEye.offsetWidth;
+
+    // Add animation - sync determines if eyes move together or with delay
+    leftEye.classList.add(anim.name);
+    const rightDelay = anim.sync ? 0 : 80;
+    setTimeout(() => rightEye.classList.add(anim.name), rightDelay);
+
+    setTimeout(() => {
+      leftEye.classList.remove(anim.name);
+      rightEye.classList.remove(anim.name);
+    }, anim.duration + 100);
+  }
+
+  function scheduleNext() {
+    const delay = 3000 + Math.random() * 5000;
+    setTimeout(() => {
+      playRandomAnimation();
+      scheduleNext();
+    }, delay);
+  }
+
+  // Auto-sleep after inactivity (only when ClaudeCode session is NOT active)
+  function resetInactivityTimer() {
+    if (inactivityTimer) {
+      clearTimeout(inactivityTimer);
+    }
+
+    // Only set inactivity timer if ClaudeCode is NOT running
+    if (!claudeCodeSessionActive) {
+      inactivityTimer = setTimeout(() => {
+        console.log('Inactivity detected - going to sleep');
+        window.updateMascotState('sleeping');
+      }, INACTIVITY_TIMEOUT);
+    }
+  }
+
+  // Auto-return to idle if no new events while in working/thinking state
+  // This handles user cancellations since Stop hook doesn't fire on interrupts
+  function resetWorkingStateTimer(state) {
+    if (workingStateTimer) {
+      clearTimeout(workingStateTimer);
+      workingStateTimer = null;
+    }
+
+    // Only set timeout for working/thinking states
+    if (state === 'thinking' || state === 'working') {
+      workingStateTimer = setTimeout(() => {
+        console.log(`Working state timeout - returning to idle from ${currentState}`);
+        window.updateMascotState('idle', 'WorkingTimeout');
+      }, WORKING_STATE_TIMEOUT);
+    }
+  }
+
+  // Update mascot state from ActionCable
+  window.updateMascotState = function(state, event) {
+    const leftEye = document.getElementById('left-eye');
+    const rightEye = document.getElementById('right-eye');
+
+    // Track ClaudeCode session state
+    if (event === 'SessionStart') {
+      claudeCodeSessionActive = true;
+      console.log('ClaudeCode session started - auto-sleep disabled');
+    } else if (event === 'Stop' || event === 'SessionEnd') {
+      claudeCodeSessionActive = false;
+      console.log('ClaudeCode session stopped - auto-sleep enabled');
+    }
+
+    // Remove all state classes
+    ['state-thinking', 'state-working', 'state-sleeping', 'state-happy', 'state-error'].forEach(cls => {
+      leftEye.classList.remove(cls);
+      rightEye.classList.remove(cls);
+    });
+
+    // Remove idle animation classes
+    animations.forEach(a => {
+      leftEye.classList.remove(a.name);
+      rightEye.classList.remove(a.name);
+    });
+
+    currentState = state;
+
+    // Reset or clear working state timer based on new state
+    resetWorkingStateTimer(state);
+
+    if (state === 'idle') {
+      idleAnimationPaused = false;
+      resetInactivityTimer(); // Reset timer on activity
+    } else if (state === 'sleeping') {
+      idleAnimationPaused = true;
+      if (inactivityTimer) {
+        clearTimeout(inactivityTimer); // Clear timer when sleeping
+      }
+      leftEye.classList.add('state-sleeping');
+      rightEye.classList.add('state-sleeping');
+    } else {
+      idleAnimationPaused = true;
+      resetInactivityTimer(); // Reset timer on activity
+      const stateClass = `state-${state}`;
+      leftEye.classList.add(stateClass);
+      rightEye.classList.add(stateClass);
+    }
+
+    console.log(`Mascot state changed to: ${state}`);
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Start in sleeping state (waiting for Claude Code to start)
+    const leftEye = document.getElementById('left-eye');
+    const rightEye = document.getElementById('right-eye');
+    leftEye.classList.add('state-sleeping');
+    rightEye.classList.add('state-sleeping');
+    currentState = 'sleeping';
+    idleAnimationPaused = true;
+    claudeCodeSessionActive = false; // No session on initial load
+
+    // Schedule idle animations for when we wake up
+    scheduleNext();
+
+    // Check if ClaudeCode session is already active on page load
+    fetch('/api/hooks/status')
+      .then(response => response.json())
+      .then(data => {
+        console.log('Initial session status:', data);
+        // Set session active flag FIRST, before updating state
+        claudeCodeSessionActive = data.session_active;
+        if (data.session_active && data.state) {
+          // Session is active, wake up to current state
+          window.updateMascotState(data.state, data.last_event);
+        }
+      })
+      .catch(error => console.error('Failed to fetch session status:', error));
+  });
+</script>

@@ -1,0 +1,13 @@
+#!/bin/bash
+# Hook triggered after Claude Code uses a tool (working state)
+
+MASCOT_URL="${MASCOT_URL:-http://localhost:3000}"
+MASCOT_TOKEN="${MASCOT_TOKEN:-dev_token_change_me}"
+
+curl -s -X POST "${MASCOT_URL}/api/hooks/event" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer ${MASCOT_TOKEN}" \
+  -d "{\"event\":\"PostToolUse\",\"tool\":\"$TOOL_NAME\",\"timestamp\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"pid\":$PPID}" \
+  > /dev/null 2>&1 &
+
+exit 0
