@@ -4,10 +4,10 @@
       <div class="eye left-eye" id="left-eye"></div>
       <div class="eye right-eye" id="right-eye"></div>
     </div>
-
-    <!-- Context Subtitle -->
-    <div class="context-tooltip" id="context-tooltip"></div>
   </div>
+
+  <!-- Context Subtitle at Bottom -->
+  <div class="context-tooltip" id="context-tooltip"></div>
 
   <!-- 8-bit Settings Icon -->
   <button class="settings-btn" id="settings-btn" title="Settings">
@@ -143,26 +143,31 @@
   }
 
   .context-tooltip {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
     font-family: 'Press Start 2P', monospace;
     font-size: 10px;
     color: #fff;
     background: rgba(0, 0, 0, 0.8);
-    padding: 12px 24px;
+    padding: 16px 32px;
     border: 4px solid #000;
-    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+    border-bottom: none;
+    box-shadow: 0 -4px 0 rgba(0, 0, 0, 0.3);
     opacity: 0;
-    transform: translateY(-8px);
     transition: opacity 0.2s steps(4), transform 0.2s steps(4);
     pointer-events: none;
     white-space: nowrap;
     image-rendering: pixelated;
     text-align: center;
-    min-width: 200px;
+    min-width: 300px;
+    z-index: 50;
   }
 
   .context-tooltip.visible {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(-50%) translateY(0);
   }
 
   .context-tooltip:empty {
@@ -1230,10 +1235,10 @@
     let text = '';
 
     // Generate context based on state and tool
-    if (state === 'thinking' && tool) {
-      text = `Thinking about ${tool}...`;
-    } else if (state === 'working' && tool) {
-      text = `Using ${tool}`;
+    if (state === 'thinking') {
+      text = tool ? `Thinking about ${tool}...` : 'Thinking...';
+    } else if (state === 'working') {
+      text = tool ? `Using ${tool}` : 'Working...';
     } else if (state === 'error') {
       text = tool ? `Error in ${tool}` : 'Something went wrong';
     } else if (event === 'SessionStart') {
@@ -1242,7 +1247,13 @@
       text = 'Going to sleep...';
     } else if (state === 'sleeping') {
       text = 'ZZZ...';
+    } else if (state === 'idle') {
+      text = 'Waiting...';
+    } else if (state === 'happy') {
+      text = '✨ Success!';
     }
+
+    console.log('[Context] State:', state, 'Event:', event, 'Tool:', tool, 'Text:', text, 'Enabled:', contextDisplay.enabled);
 
     // Update tooltip
     if (text) {
@@ -1397,11 +1408,17 @@
           claudeCodeSessionActive = data.session_active;
           if (data.session_active && data.state && data.state !== 'sleeping') {
             window.updateMascotState(data.state);
+          } else {
+            // Show initial context for idle/sleeping state
+            updateContextTooltip(data.state || 'idle', null, null);
           }
         }
       } catch (e) {
         console.error('Failed to fetch session status:', e);
       }
+    } else {
+      // No session, show idle state
+      updateContextTooltip('idle', null, null);
     }
 
     initSettingsPanel();
