@@ -1,77 +1,61 @@
-# syntax=docker/dockerfile:1
-# check=error=true
+# Multi-stage Dockerfile for Claude Mascot Rails App
+FROM ruby:3.2.2-slim AS builder
 
-# This Dockerfile is designed for production, not development. Use with Kamal or build'n'run by hand:
-# docker build -t claude_mascot .
-# docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name claude_mascot claude_mascot
-
-# For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
-
-# Make sure RUBY_VERSION matches the Ruby version in .ruby-version
-ARG RUBY_VERSION=3.3.6
-FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
-
-# Rails app lives here
-WORKDIR /rails
-
-# Install base packages
+# Install build dependencies
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl libjemalloc2 libvips sqlite3 && \
-    ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+    apt-get install -y \
+    build-essential \
+    libsqlite3-dev \
+    nodejs \
+    npm \
+    git \
+    curl && \
+    rm -rf /var/lib/apt/lists/*
 
-# Set production environment variables and enable jemalloc for reduced memory usage and latency.
-ENV RAILS_ENV="production" \
-    BUNDLE_DEPLOYMENT="1" \
-    BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development" \
-    LD_PRELOAD="/usr/local/lib/libjemalloc.so"
+WORKDIR /app
 
-# Throw-away build stage to reduce size of final image
-FROM base AS build
-
-# Install packages needed to build gems
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
-# Install application gems
-COPY vendor/* ./vendor/
+# Install gems
 COPY Gemfile Gemfile.lock ./
+RUN bundle config set --local deployment 'true' && \
+    bundle config set --local without 'development test' && \
+    bundle install
 
-RUN bundle install && \
-    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
-    # -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
-    bundle exec bootsnap precompile -j 1 --gemfile
-
-# Copy application code
+# Copy app
 COPY . .
 
-# Precompile bootsnap code for faster boot times.
-# -j 1 disable parallel compilation to avoid a QEMU bug: https://github.com/rails/bootsnap/issues/495
-RUN bundle exec bootsnap precompile -j 1 app/ lib/
+# Precompile assets
+RUN RAILS_ENV=production SECRET_KEY_BASE=dummy bundle exec rails assets:precompile && \
+    RAILS_ENV=production SECRET_KEY_BASE=dummy bundle exec rails tailwindcss:build
 
-# Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-RUN SECRET_KEY_BASE_DUMMY=1 ./bin/rails assets:precompile
+# Production stage
+FROM ruby:3.2.2-slim
 
+# Install runtime dependencies
+RUN apt-get update -qq && \
+    apt-get install -y \
+    libsqlite3-0 \
+    curl && \
+    rm -rf /var/lib/apt/lists/* && \
+    useradd -m -u 1000 rails
 
+WORKDIR /app
 
+# Copy from builder
+COPY --from=builder /usr/local/bundle /usr/local/bundle
+COPY --from=builder --chown=rails:rails /app /app
 
-# Final stage for app image
-FROM base
+# Create necessary directories
+RUN mkdir -p /app/storage /app/tmp /app/log && \
+    chown -R rails:rails /app
 
-# Run and own only the runtime files as a non-root user for security
-RUN groupadd --system --gid 1000 rails && \
-    useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash
-USER 1000:1000
+USER rails
 
-# Copy built artifacts: gems, application
-COPY --chown=rails:rails --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
-COPY --chown=rails:rails --from=build /rails /rails
+# Expose port
+EXPOSE 3000
 
-# Entrypoint prepares the database.
-ENTRYPOINT ["/rails/bin/docker-entrypoint"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD curl -f http://localhost:3000/ || exit 1
 
-# Start server via Thruster by default, this can be overwritten at runtime
-EXPOSE 80
-CMD ["./bin/thrust", "./bin/rails", "server"]
+# Start server
+CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]

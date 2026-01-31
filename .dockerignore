@@ -1,51 +1,43 @@
-# See https://docs.docker.com/engine/reference/builder/#dockerignore-file for more about ignoring files.
+# Git
+.git
+.gitignore
 
-# Ignore git directory.
-/.git/
-/.gitignore
+# Logs
+log/*
+tmp/*
+*.log
 
-# Ignore bundler config.
-/.bundle
+# Development/Test
+.env.development
+.env.test
+coverage/
+test/
+spec/
 
-# Ignore all environment files.
-/.env*
+# Node modules
+node_modules/
 
-# Ignore all default key files.
-/config/master.key
-/config/credentials/*.key
+# Storage
+storage/*
+!storage/.keep
 
-# Ignore all logfiles and tempfiles.
-/log/*
-/tmp/*
-!/log/.keep
-!/tmp/.keep
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# Ignore pidfiles, but keep the directory.
-/tmp/pids/*
-!/tmp/pids/.keep
+# OS files
+.DS_Store
+Thumbs.db
 
-# Ignore storage (uploaded files in development and any SQLite databases).
-/storage/*
-!/storage/.keep
-/tmp/storage/*
-!/tmp/storage/.keep
+# Documentation
+README.md
+CLAUDE.md
+*.md
 
-# Ignore assets.
-/node_modules/
-/app/assets/builds/*
-!/app/assets/builds/.keep
-/public/assets
-
-# Ignore CI service files.
-/.github
-
-# Ignore Kamal files.
-/config/deploy*.yml
-/.kamal
-
-# Ignore development files
-/.devcontainer
-
-# Ignore Docker-related files
-/.dockerignore
-/Dockerfile*
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
