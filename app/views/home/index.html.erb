@@ -25,46 +25,75 @@
   <div class="settings-modal" id="settings-modal">
     <div class="settings-panel">
       <div class="settings-header">
-        <h2>⚙️ SETTINGS</h2>
+        <h2>⚙️ YOUR SESSION</h2>
         <button class="close-btn" id="close-settings">✕</button>
       </div>
       
       <div class="settings-content">
-        <div class="setting-group">
-          <label for="mascot-url">MASCOT API URL</label>
-          <input type="text" id="mascot-url" placeholder="http://localhost:3000" />
-          <span class="setting-hint">The URL where your mascot server is running</span>
+        <!-- Connection Status -->
+        <div class="connection-status" id="connection-status">
+          <span class="status-dot" id="status-dot"></span>
+          <span class="status-text" id="status-text">Checking...</span>
         </div>
 
+        <!-- Session Name -->
         <div class="setting-group">
-          <label for="api-token">API TOKEN</label>
-          <input type="password" id="api-token" placeholder="dev_token_change_me" />
-          <span class="setting-hint">Authentication token for the hooks API</span>
+          <label for="session-name">SESSION NAME</label>
+          <input type="text" id="session-name" placeholder="My Computer" />
+          <span class="setting-hint">A friendly name for this session</span>
         </div>
 
+        <!-- Session Token -->
         <div class="setting-group">
-          <label for="working-timeout">WORKING TIMEOUT (seconds)</label>
-          <input type="number" id="working-timeout" min="1" max="60" placeholder="5" />
-          <span class="setting-hint">Return to idle if no events after this duration</span>
-        </div>
-
-        <div class="setting-group">
-          <label for="inactivity-timeout">SLEEP TIMEOUT (minutes)</label>
-          <input type="number" id="inactivity-timeout" min="1" max="30" placeholder="2" />
-          <span class="setting-hint">Go to sleep after this duration of inactivity</span>
+          <label>SESSION TOKEN</label>
+          <div class="token-display">
+            <code id="session-token">Loading...</code>
+            <button class="btn-icon" id="copy-token" title="Copy Token">📋</button>
+          </div>
+          <span class="setting-hint">Your unique session identifier (keep this private!)</span>
         </div>
 
         <div class="settings-status" id="settings-status"></div>
 
+        <!-- Primary Actions -->
         <div class="settings-actions">
-          <button class="btn-secondary" id="test-connection">TEST CONNECTION</button>
-          <button class="btn-primary" id="save-settings">SAVE</button>
+          <button class="btn-primary btn-large" id="download-hooks">
+            📥 DOWNLOAD HOOKS
+          </button>
         </div>
 
-        <div class="settings-info">
-          <p>📋 Copy this to your shell config:</p>
-          <code id="env-export">export MASCOT_URL="http://localhost:3000"<br/>export MASCOT_TOKEN="dev_token_change_me"</code>
+        <!-- Setup Instructions -->
+        <div class="setup-instructions">
+          <h3>📝 SETUP</h3>
+          <ol>
+            <li>Download hooks above</li>
+            <li>Extract to <code>~/.claude/hooks/</code></li>
+            <li>Make executable: <code>chmod +x ~/.claude/hooks/*</code></li>
+            <li>Restart Claude Code</li>
+          </ol>
         </div>
+
+        <!-- Advanced Settings Toggle -->
+        <details class="advanced-settings">
+          <summary>⚡ Advanced Settings</summary>
+          
+          <div class="setting-group">
+            <label for="working-timeout">WORKING TIMEOUT (seconds)</label>
+            <input type="number" id="working-timeout" min="1" max="60" value="5" />
+            <span class="setting-hint">Return to idle if no events after this duration</span>
+          </div>
+
+          <div class="setting-group">
+            <label for="inactivity-timeout">SLEEP TIMEOUT (minutes)</label>
+            <input type="number" id="inactivity-timeout" min="1" max="30" value="2" />
+            <span class="setting-hint">Go to sleep after this duration of inactivity</span>
+          </div>
+
+          <div class="settings-actions">
+            <button class="btn-secondary" id="save-settings">SAVE SETTINGS</button>
+            <button class="btn-danger" id="regenerate-token">🔄 NEW TOKEN</button>
+          </div>
+        </details>
       </div>
     </div>
   </div>
@@ -336,6 +365,7 @@
     right: 24px;
     width: 48px;
     height: 48px;
+    
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -570,37 +600,185 @@
     line-height: 2;
     word-break: break-all;
   }
+
+  /* ========== Session Settings Additional Styles ========== */
+
+  .connection-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #1a1a2a;
+    border: 4px solid #333;
+    margin-bottom: 20px;
+  }
+
+  .status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 0;
+    background: #888;
+  }
+
+  .status-dot.connected {
+    background: #4f4;
+    box-shadow: 0 0 8px #4f4;
+  }
+
+  .status-dot.disconnected {
+    background: #f44;
+  }
+
+  .status-text {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #aaa;
+  }
+
+  .token-display {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .token-display code {
+    flex: 1;
+    padding: 12px 16px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    background: #1a1a2a;
+    border: 4px solid #444;
+    color: #D77757;
+    word-break: break-all;
+    line-height: 1.5;
+  }
+
+  .btn-icon {
+    padding: 12px 16px;
+    background: #444;
+    border: 4px solid #000;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.1s steps(2);
+  }
+
+  .btn-icon:hover {
+    background: #555;
+  }
+
+  .btn-large {
+    width: 100%;
+    padding: 18px 24px;
+    font-size: 12px;
+  }
+
+  .btn-danger {
+    flex: 1;
+    padding: 14px 20px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    border: 4px solid #000;
+    cursor: pointer;
+    transition: all 0.1s steps(2);
+    background: #833;
+    color: #fff;
+  }
+
+  .btn-danger:hover {
+    background: #a44;
+    transform: translateY(-2px);
+  }
+
+  .setup-instructions {
+    background: #1a1a2a;
+    border: 4px solid #333;
+    padding: 16px;
+    margin-top: 20px;
+  }
+
+  .setup-instructions h3 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: #aaa;
+    margin: 0 0 12px 0;
+  }
+
+  .setup-instructions ol {
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  .setup-instructions li {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: #888;
+    margin-bottom: 8px;
+    line-height: 1.8;
+  }
+
+  .setup-instructions code {
+    background: #0a0a1a;
+    padding: 2px 6px;
+    color: #4f4;
+  }
+
+  .advanced-settings {
+    margin-top: 20px;
+    background: #1a1a2a;
+    border: 4px solid #333;
+  }
+
+  .advanced-settings summary {
+    padding: 14px 16px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #888;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .advanced-settings summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .advanced-settings summary:hover {
+    background: #2a2a3a;
+    color: #aaa;
+  }
+
+  .advanced-settings[open] summary {
+    border-bottom: 4px solid #333;
+  }
+
+  .advanced-settings .setting-group {
+    padding: 16px;
+    margin-bottom: 0;
+  }
+
+  .advanced-settings .settings-actions {
+    padding: 16px;
+    margin-bottom: 0;
+  }
 </style>
 
 <script>
   let currentState = 'idle';
   let idleAnimationPaused = false;
   let inactivityTimer = null;
-  let workingStateTimer = null; // Timer for working/thinking state timeout
-  let claudeCodeSessionActive = false; // Track if ClaudeCode CLI is running
+  let workingStateTimer = null;
+  let claudeCodeSessionActive = false;
+  let mascotSubscription = null;
   
-  // Configurable settings (can be updated from settings panel)
-  let settings = {
-    mascotUrl: window.location.origin,
-    apiToken: 'dev_token_change_me',
-    workingTimeout: 5000,      // 5 seconds - return to idle if no events
-    inactivityTimeout: 120000  // 2 minutes - go to sleep
+  // Session and settings
+  let session = {
+    token: null,
+    name: null
   };
-
-  // Load settings from localStorage
-  function loadSettings() {
-    const saved = localStorage.getItem('mascotSettings');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        settings = { ...settings, ...parsed };
-        console.log('Loaded settings from localStorage:', settings);
-      } catch (e) {
-        console.error('Failed to parse saved settings:', e);
-      }
-    }
-  }
-  loadSettings();
+  
+  let settings = {
+    workingTimeout: 5000,
+    inactivityTimeout: 120000
+  };
 
   const animations = [
     { name: 'blink', duration: 150, weight: 8, sync: true },
@@ -614,6 +792,69 @@
     { name: 'shimmer', duration: 300, weight: 0.6, sync: false },
   ];
 
+  // ========== Session Management ==========
+  
+  async function loadOrCreateSession() {
+    // Try to load from localStorage
+    const saved = localStorage.getItem('mascotSession');
+    if (saved) {
+      try {
+        session = JSON.parse(saved);
+        console.log('Loaded session from localStorage:', session.token?.substring(0, 8) + '...');
+        
+        // Verify session still exists on server
+        const response = await fetch(`/api/sessions/${session.token}`);
+        if (response.ok) {
+          const data = await response.json();
+          session.name = data.name;
+          return true;
+        } else {
+          console.log('Session not found on server, creating new one');
+        }
+      } catch (e) {
+        console.error('Failed to parse saved session:', e);
+      }
+    }
+    
+    // Create new session
+    return await createNewSession();
+  }
+
+  async function createNewSession() {
+    try {
+      const response = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'My Computer' })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        session.token = data.token;
+        session.name = data.name;
+        localStorage.setItem('mascotSession', JSON.stringify(session));
+        console.log('Created new session:', session.token?.substring(0, 8) + '...');
+        return true;
+      }
+    } catch (e) {
+      console.error('Failed to create session:', e);
+    }
+    return false;
+  }
+
+  function loadSettings() {
+    const saved = localStorage.getItem('mascotSettings');
+    if (saved) {
+      try {
+        settings = { ...settings, ...JSON.parse(saved) };
+      } catch (e) {
+        console.error('Failed to parse saved settings:', e);
+      }
+    }
+  }
+
+  // ========== Animation Functions ==========
+
   function pickAnimation() {
     const totalWeight = animations.reduce((sum, a) => sum + a.weight, 0);
     let random = Math.random() * totalWeight;
@@ -626,20 +867,16 @@
 
   function playRandomAnimation() {
     if (idleAnimationPaused) return;
-
     const leftEye = document.getElementById('left-eye');
     const rightEye = document.getElementById('right-eye');
     const anim = pickAnimation();
 
-    // Remove all animation classes
     animations.forEach(a => {
       leftEye.classList.remove(a.name);
       rightEye.classList.remove(a.name);
     });
 
     void leftEye.offsetWidth;
-
-    // Add animation - sync determines if eyes move together or with delay
     leftEye.classList.add(anim.name);
     const rightDelay = anim.sync ? 0 : 80;
     setTimeout(() => rightEye.classList.add(anim.name), rightDelay);
@@ -658,13 +895,10 @@
     }, delay);
   }
 
-  // Auto-sleep after inactivity (only when ClaudeCode session is NOT active)
-  function resetInactivityTimer() {
-    if (inactivityTimer) {
-      clearTimeout(inactivityTimer);
-    }
+  // ========== Timer Functions ==========
 
-    // Only set inactivity timer if ClaudeCode is NOT running
+  function resetInactivityTimer() {
+    if (inactivityTimer) clearTimeout(inactivityTimer);
     if (!claudeCodeSessionActive) {
       inactivityTimer = setTimeout(() => {
         console.log('Inactivity detected - going to sleep');
@@ -673,234 +907,260 @@
     }
   }
 
-  // Auto-return to idle if no new events while in working/thinking state
-  // This handles user cancellations since Stop hook doesn't fire on interrupts
   function resetWorkingStateTimer(state) {
     if (workingStateTimer) {
       clearTimeout(workingStateTimer);
       workingStateTimer = null;
     }
-
-    // Only set timeout for working/thinking states
     if (state === 'thinking' || state === 'working') {
       workingStateTimer = setTimeout(() => {
-        console.log(`Working state timeout - returning to idle from ${currentState}`);
+        console.log(`Working state timeout - returning to idle`);
         window.updateMascotState('idle', 'WorkingTimeout');
       }, settings.workingTimeout);
     }
   }
 
-  // Update mascot state from ActionCable
+  // ========== State Update ==========
+
   window.updateMascotState = function(state, event) {
     const leftEye = document.getElementById('left-eye');
     const rightEye = document.getElementById('right-eye');
 
-    // Track ClaudeCode session state
     if (event === 'SessionStart') {
       claudeCodeSessionActive = true;
-      console.log('ClaudeCode session started - auto-sleep disabled');
     } else if (event === 'Stop' || event === 'SessionEnd') {
       claudeCodeSessionActive = false;
-      console.log('ClaudeCode session stopped - auto-sleep enabled');
     }
 
-    // Remove all state classes
     ['state-thinking', 'state-working', 'state-sleeping', 'state-happy', 'state-error'].forEach(cls => {
       leftEye.classList.remove(cls);
       rightEye.classList.remove(cls);
     });
 
-    // Remove idle animation classes
     animations.forEach(a => {
       leftEye.classList.remove(a.name);
       rightEye.classList.remove(a.name);
     });
 
     currentState = state;
-
-    // Reset or clear working state timer based on new state
     resetWorkingStateTimer(state);
 
     if (state === 'idle') {
       idleAnimationPaused = false;
-      resetInactivityTimer(); // Reset timer on activity
+      resetInactivityTimer();
     } else if (state === 'sleeping') {
       idleAnimationPaused = true;
-      if (inactivityTimer) {
-        clearTimeout(inactivityTimer); // Clear timer when sleeping
-      }
+      if (inactivityTimer) clearTimeout(inactivityTimer);
       leftEye.classList.add('state-sleeping');
       rightEye.classList.add('state-sleeping');
     } else {
       idleAnimationPaused = true;
-      resetInactivityTimer(); // Reset timer on activity
-      const stateClass = `state-${state}`;
-      leftEye.classList.add(stateClass);
-      rightEye.classList.add(stateClass);
+      resetInactivityTimer();
+      leftEye.classList.add(`state-${state}`);
+      rightEye.classList.add(`state-${state}`);
     }
 
     console.log(`Mascot state changed to: ${state}`);
   };
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // Start in sleeping state (waiting for Claude Code to start)
+  // ========== WebSocket Connection Callbacks ==========
+
+  window.onMascotConnected = function() {
+    updateConnectionStatus(true);
+  };
+
+  window.onMascotDisconnected = function() {
+    updateConnectionStatus(false);
+  };
+
+  function updateConnectionStatus(connected) {
+    const statusDot = document.getElementById('status-dot');
+    const statusText = document.getElementById('status-text');
+    if (statusDot && statusText) {
+      statusDot.className = 'status-dot ' + (connected ? 'connected' : 'disconnected');
+      statusText.textContent = connected ? 'Connected' : 'Disconnected';
+    }
+  }
+
+  // ========== Initialization ==========
+
+  document.addEventListener('DOMContentLoaded', async () => {
     const leftEye = document.getElementById('left-eye');
     const rightEye = document.getElementById('right-eye');
     leftEye.classList.add('state-sleeping');
     rightEye.classList.add('state-sleeping');
     currentState = 'sleeping';
     idleAnimationPaused = true;
-    claudeCodeSessionActive = false; // No session on initial load
 
-    // Schedule idle animations for when we wake up
     scheduleNext();
-
-    // Check if ClaudeCode session is already active on page load
-    fetch('/api/hooks/status')
-      .then(response => response.json())
-      .then(data => {
-        console.log('Initial session status:', data);
-        // Set session active flag FIRST, before updating state
-        claudeCodeSessionActive = data.session_active;
-        if (data.session_active && data.state) {
-          // Session is active, wake up to current state
-          window.updateMascotState(data.state, data.last_event);
+    loadSettings();
+    
+    // Load or create session
+    const sessionOk = await loadOrCreateSession();
+    
+    if (sessionOk && session.token) {
+      // Create WebSocket subscription with token
+      if (window.createMascotSubscription) {
+        mascotSubscription = window.createMascotSubscription(session.token);
+      }
+      
+      // Check current session status
+      try {
+        const response = await fetch(`/api/hooks/status`, {
+          headers: { 'Authorization': `Bearer ${session.token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          claudeCodeSessionActive = data.session_active;
+          if (data.session_active && data.state && data.state !== 'sleeping') {
+            window.updateMascotState(data.state);
+          }
         }
-      })
-      .catch(error => console.error('Failed to fetch session status:', error));
-
-    // Initialize settings panel
+      } catch (e) {
+        console.error('Failed to fetch session status:', e);
+      }
+    }
+    
     initSettingsPanel();
   });
 
-  // ========== Settings Panel Functionality ==========
-  
+  // ========== Settings Panel ==========
+
   function initSettingsPanel() {
     const settingsBtn = document.getElementById('settings-btn');
     const settingsModal = document.getElementById('settings-modal');
     const closeBtn = document.getElementById('close-settings');
     const saveBtn = document.getElementById('save-settings');
-    const testBtn = document.getElementById('test-connection');
-    
-    // Form inputs
-    const mascotUrlInput = document.getElementById('mascot-url');
-    const apiTokenInput = document.getElementById('api-token');
+    const downloadBtn = document.getElementById('download-hooks');
+    const copyTokenBtn = document.getElementById('copy-token');
+    const regenerateBtn = document.getElementById('regenerate-token');
+    const sessionNameInput = document.getElementById('session-name');
+    const sessionTokenEl = document.getElementById('session-token');
     const workingTimeoutInput = document.getElementById('working-timeout');
     const inactivityTimeoutInput = document.getElementById('inactivity-timeout');
-    const envExport = document.getElementById('env-export');
     const statusEl = document.getElementById('settings-status');
 
-    // Load current settings into form
     function populateForm() {
-      mascotUrlInput.value = settings.mascotUrl || '';
-      apiTokenInput.value = settings.apiToken || '';
-      workingTimeoutInput.value = settings.workingTimeout / 1000; // Convert to seconds
-      inactivityTimeoutInput.value = settings.inactivityTimeout / 60000; // Convert to minutes
-      updateEnvExport();
+      sessionNameInput.value = session.name || '';
+      sessionTokenEl.textContent = session.token || 'No session';
+      workingTimeoutInput.value = settings.workingTimeout / 1000;
+      inactivityTimeoutInput.value = settings.inactivityTimeout / 60000;
+      updateConnectionStatus(mascotSubscription !== null);
     }
 
-    // Update the shell export code
-    function updateEnvExport() {
-      const url = mascotUrlInput.value || window.location.origin;
-      const token = apiTokenInput.value || 'dev_token_change_me';
-      envExport.innerHTML = `export MASCOT_URL="${url}"<br/>export MASCOT_TOKEN="${token}"`;
-    }
-
-    // Show status message
     function showStatus(message, type) {
       statusEl.textContent = message;
       statusEl.className = 'settings-status ' + type;
       if (type !== 'loading') {
-        setTimeout(() => {
-          statusEl.className = 'settings-status';
-        }, 5000);
+        setTimeout(() => { statusEl.className = 'settings-status'; }, 5000);
       }
     }
 
-    // Open settings modal
+    // Open modal
     settingsBtn.addEventListener('click', () => {
       populateForm();
       settingsModal.classList.add('open');
     });
 
-    // Close settings modal
-    closeBtn.addEventListener('click', () => {
-      settingsModal.classList.remove('open');
-    });
-
-    // Close on backdrop click
+    // Close modal
+    closeBtn.addEventListener('click', () => settingsModal.classList.remove('open'));
     settingsModal.addEventListener('click', (e) => {
-      if (e.target === settingsModal) {
-        settingsModal.classList.remove('open');
-      }
+      if (e.target === settingsModal) settingsModal.classList.remove('open');
     });
-
-    // Close on Escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && settingsModal.classList.contains('open')) {
         settingsModal.classList.remove('open');
       }
     });
 
-    // Update export code on input change
-    mascotUrlInput.addEventListener('input', updateEnvExport);
-    apiTokenInput.addEventListener('input', updateEnvExport);
+    // Copy token
+    copyTokenBtn.addEventListener('click', async () => {
+      if (session.token) {
+        await navigator.clipboard.writeText(session.token);
+        showStatus('✓ TOKEN COPIED!', 'success');
+      }
+    });
 
-    // Test connection
-    testBtn.addEventListener('click', async () => {
-      const url = mascotUrlInput.value || window.location.origin;
-      showStatus('TESTING CONNECTION...', 'loading');
-
-      try {
-        const response = await fetch(`${url}/api/hooks/status`, {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json'
-          }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          showStatus(`✓ CONNECTED! Session: ${data.session_active ? 'ACTIVE' : 'INACTIVE'}`, 'success');
-        } else {
-          showStatus(`✗ ERROR: ${response.status} ${response.statusText}`, 'error');
-        }
-      } catch (error) {
-        showStatus(`✗ CONNECTION FAILED: ${error.message}`, 'error');
+    // Download hooks
+    downloadBtn.addEventListener('click', () => {
+      if (session.token) {
+        window.location.href = `/api/sessions/${session.token}/hooks`;
+      } else {
+        showStatus('✗ NO SESSION TOKEN', 'error');
       }
     });
 
     // Save settings
-    saveBtn.addEventListener('click', () => {
-      // Validate inputs
+    saveBtn.addEventListener('click', async () => {
       const workingSec = parseInt(workingTimeoutInput.value) || 5;
       const inactivityMin = parseInt(inactivityTimeoutInput.value) || 2;
 
       if (workingSec < 1 || workingSec > 60) {
-        showStatus('Working timeout must be 1-60 seconds', 'error');
+        showStatus('Working timeout: 1-60 seconds', 'error');
         return;
       }
       if (inactivityMin < 1 || inactivityMin > 30) {
-        showStatus('Sleep timeout must be 1-30 minutes', 'error');
+        showStatus('Sleep timeout: 1-30 minutes', 'error');
         return;
       }
 
-      // Update settings
-      settings.mascotUrl = mascotUrlInput.value || window.location.origin;
-      settings.apiToken = apiTokenInput.value || 'dev_token_change_me';
+      // Update session name on server
+      if (sessionNameInput.value !== session.name) {
+        try {
+          await fetch(`/api/sessions/${session.token}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: sessionNameInput.value })
+          });
+          session.name = sessionNameInput.value;
+          localStorage.setItem('mascotSession', JSON.stringify(session));
+        } catch (e) {
+          console.error('Failed to update session name:', e);
+        }
+      }
+
       settings.workingTimeout = workingSec * 1000;
       settings.inactivityTimeout = inactivityMin * 60000;
-
-      // Save to localStorage
       localStorage.setItem('mascotSettings', JSON.stringify(settings));
 
-      showStatus('✓ SETTINGS SAVED!', 'success');
-      console.log('Settings saved:', settings);
+      showStatus('✓ SAVED!', 'success');
+    });
 
-      // Close modal after a brief delay
-      setTimeout(() => {
-        settingsModal.classList.remove('open');
-      }, 1500);
+    // Regenerate token
+    regenerateBtn.addEventListener('click', async () => {
+      if (!confirm('This will invalidate your current hooks. You will need to download and reinstall them. Continue?')) {
+        return;
+      }
+
+      showStatus('REGENERATING...', 'loading');
+
+      try {
+        const response = await fetch(`/api/sessions/${session.token}/regenerate`, {
+          method: 'POST'
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          session.token = data.token;
+          localStorage.setItem('mascotSession', JSON.stringify(session));
+          sessionTokenEl.textContent = session.token;
+
+          // Recreate subscription with new token
+          if (mascotSubscription) {
+            mascotSubscription.unsubscribe();
+          }
+          if (window.createMascotSubscription) {
+            mascotSubscription = window.createMascotSubscription(session.token);
+          }
+
+          showStatus('✓ NEW TOKEN GENERATED!', 'success');
+        } else {
+          showStatus('✗ FAILED TO REGENERATE', 'error');
+        }
+      } catch (e) {
+        showStatus('✗ ERROR: ' + e.message, 'error');
+      }
     });
   }
 </script>
+

@@ -17,5 +17,13 @@ Rails.application.routes.draw do
   namespace :api do
     post "hooks/event", to: "hooks#event"
     get "hooks/status", to: "hooks#status"
+
+    # Session management
+    resources :sessions, param: :token, only: [:create, :show, :update] do
+      member do
+        post :regenerate
+        get :hooks
+      end
+    end
   end
 end
