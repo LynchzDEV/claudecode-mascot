@@ -178,6 +178,8 @@
     display: flex;
     gap: 12rem;
     image-rendering: pixelated;
+    cursor: pointer;
+    user-select: none;
   }
 
   .eye {
@@ -427,6 +429,60 @@
     50% {
       transform: translateY(-8px);
     }
+  }
+
+  /* Click wobble: TRUE 8-bit bounce - only 4 discrete positions */
+  @keyframes wobble {
+    /* Frame 1: Start */
+    0% { transform: translateY(0); }
+    /* Frame 2: BIG jump up */
+    25% { transform: translateY(-32px); }
+    /* Frame 3: Drop down */
+    50% { transform: translateY(8px); }
+    /* Frame 4: Small bounce */
+    75% { transform: translateY(-16px); }
+    /* Frame 5: Return */
+    100% { transform: translateY(0); }
+  }
+
+  .eyes-container.wobble {
+    animation: wobble 0.4s steps(4);
+  }
+
+  /* Happy click: Create actual ^ ^ eyes - connected inverted V pattern */
+  .eye.click-happy {
+    width: 24px;
+    height: 24px;
+    background: #000;
+    box-shadow: none;
+    border-radius: 0;
+    position: relative;
+  }
+
+  /* Left eye: ^ pattern */
+  .eye.left-eye.click-happy {
+    box-shadow:
+      /* Left diagonal: \ */
+      -24px 24px 0 0 #000,     /* bottom-left */
+      -12px 12px 0 0 #000,     /* mid-left (connected) */
+      /* Top center */
+      0 0 0 0 #000,             /* peak (base element) */
+      /* Right diagonal: / */
+      12px 12px 0 0 #000,      /* mid-right (connected) */
+      24px 24px 0 0 #000;      /* bottom-right */
+  }
+
+  /* Right eye: ^ pattern */
+  .eye.right-eye.click-happy {
+    box-shadow:
+      /* Left diagonal: \ */
+      -24px 24px 0 0 #000,     /* bottom-left */
+      -12px 12px 0 0 #000,     /* mid-left (connected) */
+      /* Top center */
+      0 0 0 0 #000,             /* peak (base element) */
+      /* Right diagonal: / */
+      12px 12px 0 0 #000,      /* mid-right (connected) */
+      24px 24px 0 0 #000;      /* bottom-right */
   }
 
   /* ========== Settings Button & Modal ========== */
@@ -1422,7 +1478,70 @@
     }
 
     initSettingsPanel();
+    initMascotClick();
   });
+
+  // ========== Mascot Click Interaction ==========
+
+  function initMascotClick() {
+    const eyesContainer = document.getElementById('eyes');
+    const leftEye = document.getElementById('left-eye');
+    const rightEye = document.getElementById('right-eye');
+
+    if (!eyesContainer || !leftEye || !rightEye) return;
+
+    let isAnimating = false;
+
+    eyesContainer.addEventListener('click', () => {
+      if (isAnimating) return; // Prevent multiple clicks during animation
+
+      isAnimating = true;
+
+      // Store current state classes
+      const leftClasses = Array.from(leftEye.classList);
+      const rightClasses = Array.from(rightEye.classList);
+
+      // Remove all state classes
+      ['state-thinking', 'state-working', 'state-sleeping', 'state-happy', 'state-error'].forEach(cls => {
+        leftEye.classList.remove(cls);
+        rightEye.classList.remove(cls);
+      });
+
+      // Add happy eyes (^ ^) with rotation
+      leftEye.classList.add('click-happy');
+      rightEye.classList.add('click-happy');
+
+      // Add wobble animation to container
+      eyesContainer.classList.add('wobble');
+
+      // Play happy sound
+      soundEffects.playHappy();
+
+      // Show happy context
+      updateContextTooltip('happy', 'Click', null);
+
+      // Remove animations and restore state after 400ms (match wobble duration)
+      setTimeout(() => {
+        eyesContainer.classList.remove('wobble');
+        leftEye.classList.remove('click-happy');
+        rightEye.classList.remove('click-happy');
+
+        // Restore previous state classes (skip 'eye', 'left-eye', 'right-eye')
+        leftClasses.forEach(cls => {
+          if (cls.startsWith('state-') || cls.startsWith('anim-')) {
+            leftEye.classList.add(cls);
+          }
+        });
+        rightClasses.forEach(cls => {
+          if (cls.startsWith('state-') || cls.startsWith('anim-')) {
+            rightEye.classList.add(cls);
+          }
+        });
+
+        isAnimating = false;
+      }, 400);
+    });
+  }
 
   // ========== Settings Panel ==========
 
