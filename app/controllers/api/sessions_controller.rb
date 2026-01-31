@@ -1,4 +1,5 @@
 require "zip"
+require "base64"
 
 class Api::SessionsController < ApplicationController
   skip_before_action :verify_authenticity_token
@@ -95,6 +96,18 @@ class Api::SessionsController < ApplicationController
       filename: "claude-mascot-hooks.zip"
   end
 
+  # GET /install/:token - One-line curl installer
+  def install
+    session = find_session
+    return render plain: "echo 'Error: Invalid session token'; exit 1", status: :not_found unless session
+
+    session.touch_last_seen!
+    mascot_url = request.base_url
+
+    installer_script = generate_installer_script(session.token, mascot_url)
+    render plain: installer_script, content_type: "text/plain"
+  end
+
   private
 
   def find_session
@@ -153,5 +166,49 @@ class Api::SessionsController < ApplicationController
 
       Visit #{mascot_url} to manage your session.
     MD
+  end
+
+  def generate_installer_script(token, mascot_url)
+    hooks = %w[SessionStart PreToolUse PostToolUse Stop SessionEnd]
+
+    <<~BASH
+      #!/bin/bash
+      # Claude Code Mascot Hooks Installer
+      # Generated for: #{mascot_url}
+
+      set -e
+
+      echo "🎭 Installing Claude Code Mascot Hooks..."
+      echo ""
+
+      # Create hooks directory
+      HOOKS_DIR="$HOME/.claude/hooks"
+      mkdir -p "$HOOKS_DIR"
+
+      # Download each hook
+      #{hooks.map { |hook| download_hook_command(hook, token, mascot_url) }.join("\n")}
+
+      # Make hooks executable
+      chmod +x "$HOOKS_DIR"/*
+
+      echo ""
+      echo "✅ Installation complete!"
+      echo ""
+      echo "Your mascot is now connected to #{mascot_url}"
+      echo "Start using Claude Code and watch your mascot come to life!"
+      echo ""
+      echo "To uninstall: rm -rf ~/.claude/hooks"
+    BASH
+  end
+
+  def download_hook_command(event_type, token, mascot_url)
+    hook_content = generate_hook_script(event_type, token, mascot_url)
+    # Base64 encode the hook content to safely pass it through echo
+    encoded_content = Base64.strict_encode64(hook_content)
+
+    <<~BASH.chomp
+      echo "  → Installing #{event_type}..."
+      echo '#{encoded_content}' | base64 -d > "$HOOKS_DIR/#{event_type}"
+    BASH
   end
 end

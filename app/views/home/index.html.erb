@@ -1,7 +1,12 @@
 <div class="h-screen w-screen flex items-center justify-center gap-48" style="background-color: #D77757;">
-  <div class="eyes-container" id="eyes">
-    <div class="eye left-eye" id="left-eye"></div>
-    <div class="eye right-eye" id="right-eye"></div>
+  <div class="mascot-wrapper">
+    <!-- Context Tooltip -->
+    <div class="context-tooltip" id="context-tooltip"></div>
+
+    <div class="eyes-container" id="eyes">
+      <div class="eye left-eye" id="left-eye"></div>
+      <div class="eye right-eye" id="right-eye"></div>
+    </div>
   </div>
 
   <!-- 8-bit Settings Icon -->
@@ -28,7 +33,7 @@
         <h2>⚙️ YOUR SESSION</h2>
         <button class="close-btn" id="close-settings">✕</button>
       </div>
-      
+
       <div class="settings-content">
         <!-- Connection Status -->
         <div class="connection-status" id="connection-status">
@@ -55,28 +60,31 @@
 
         <div class="settings-status" id="settings-status"></div>
 
-        <!-- Primary Actions -->
-        <div class="settings-actions">
-          <button class="btn-primary btn-large" id="download-hooks">
-            📥 DOWNLOAD HOOKS
-          </button>
+        <!-- Installation Command -->
+        <div class="setting-group">
+          <label>🚀 ONE-LINE INSTALL</label>
+          <div class="install-command-container">
+            <code class="install-command" id="install-command">Loading...</code>
+            <button class="copy-btn" id="copy-install-btn" title="Copy to clipboard">📋</button>
+          </div>
+          <span class="setting-hint">Run this in your terminal to install hooks automatically</span>
         </div>
 
-        <!-- Setup Instructions -->
-        <div class="setup-instructions">
-          <h3>📝 SETUP</h3>
-          <ol>
-            <li>Download hooks above</li>
-            <li>Extract to <code>~/.claude/hooks/</code></li>
-            <li>Make executable: <code>chmod +x ~/.claude/hooks/*</code></li>
-            <li>Restart Claude Code</li>
-          </ol>
-        </div>
+        <!-- Alternative: Manual Download -->
+        <details class="manual-install">
+          <summary>📥 Manual Installation</summary>
+          <div class="setting-group">
+            <button class="btn-secondary" id="download-hooks">
+              Download Hooks ZIP
+            </button>
+            <span class="setting-hint">Extract to ~/.claude/hooks/ and chmod +x</span>
+          </div>
+        </details>
 
         <!-- Advanced Settings Toggle -->
         <details class="advanced-settings">
           <summary>⚡ Advanced Settings</summary>
-          
+
           <div class="setting-group">
             <label for="working-timeout">WORKING TIMEOUT (seconds)</label>
             <input type="number" id="working-timeout" min="1" max="60" value="5" />
@@ -87,6 +95,14 @@
             <label for="inactivity-timeout">SLEEP TIMEOUT (minutes)</label>
             <input type="number" id="inactivity-timeout" min="1" max="30" value="2" />
             <span class="setting-hint">Go to sleep after this duration of inactivity</span>
+          </div>
+
+          <div class="setting-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="sound-enabled" />
+              <span>🔊 SOUND EFFECTS</span>
+            </label>
+            <span class="setting-hint">Play 8-bit sounds on state changes</span>
           </div>
 
           <div class="settings-actions">
@@ -102,10 +118,59 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
+  /* Global background to prevent white bars */
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #D77757;
+    overflow: hidden;
+  }
+
+  .mascot-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .context-tooltip {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 12px 16px;
+    border: 4px solid #000;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.2s steps(4), transform 0.2s steps(4);
+    pointer-events: none;
+    white-space: nowrap;
+    image-rendering: pixelated;
+    min-height: 20px;
+  }
+
+  .context-tooltip.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .context-tooltip:empty {
+    display: none;
+  }
+
   .eyes-container {
     display: flex;
     gap: 12rem;
     image-rendering: pixelated;
+    cursor: pointer;
+  }
+
+  /* Show tooltip on hover if it has content */
+  .mascot-wrapper:hover .context-tooltip:not(:empty) {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
   }
 
   .eye {
@@ -254,37 +319,37 @@
   }
 
   /* State animations - TRUE 8-BIT pixel art style */
-  
+
   /* Thinking: Pondering look - 6 discrete frames, pixel-snapped */
   @keyframes thinking {
     /* Frame 1: Normal */
-    0%, 100% { 
-      transform: translateY(0) translateX(0); 
+    0%, 100% {
+      transform: translateY(0) translateX(0);
       height: 192px;
     }
     /* Frame 2: Look up */
-    16.66% { 
-      transform: translateY(-16px) translateX(0); 
+    16.66% {
+      transform: translateY(-16px) translateX(0);
       height: 176px;
     }
     /* Frame 3: Think hard - squint + drift right */
-    33.33% { 
-      transform: translateY(-24px) translateX(8px); 
+    33.33% {
+      transform: translateY(-24px) translateX(8px);
       height: 160px;
     }
     /* Frame 4: Hold thought */
-    50% { 
-      transform: translateY(-24px) translateX(8px); 
+    50% {
+      transform: translateY(-24px) translateX(8px);
       height: 160px;
     }
     /* Frame 5: Drift left considering */
-    66.66% { 
-      transform: translateY(-16px) translateX(-8px); 
+    66.66% {
+      transform: translateY(-16px) translateX(-8px);
       height: 168px;
     }
     /* Frame 6: Settle back */
-    83.33% { 
-      transform: translateY(-8px) translateX(0); 
+    83.33% {
+      transform: translateY(-8px) translateX(0);
       height: 184px;
     }
   }
@@ -292,27 +357,27 @@
   /* Working: Focused look - 8 discrete frames, pixel-snapped */
   @keyframes working {
     /* Frame 1-2: Focused narrow gaze */
-    0%, 12.5% { 
+    0%, 12.5% {
       height: 160px;
       transform: translateY(16px);
     }
     /* Frame 3-4: Deep focus */
-    25%, 37.5% { 
+    25%, 37.5% {
       height: 152px;
       transform: translateY(24px);
     }
     /* Frame 5: Quick blink */
-    50% { 
+    50% {
       height: 16px;
       transform: translateY(88px);
     }
     /* Frame 6: Eyes back open */
-    62.5% { 
+    62.5% {
       height: 152px;
       transform: translateY(24px);
     }
     /* Frame 7-8: Continue focused */
-    75%, 87.5% { 
+    75%, 87.5% {
       height: 160px;
       transform: translateY(16px);
     }
@@ -320,18 +385,18 @@
 
   /* Happy: Joyful squinting eyes - pure 8-bit */
   @keyframes happy {
-    0%, 100% { 
-      height: 192px; 
+    0%, 100% {
+      height: 192px;
       transform: translateY(0);
     }
     /* Squint happily */
-    25%, 75% { 
-      height: 96px; 
+    25%, 75% {
+      height: 96px;
       transform: translateY(48px);
     }
     /* Hold happy squint */
-    50% { 
-      height: 80px; 
+    50% {
+      height: 80px;
       transform: translateY(56px);
     }
   }
@@ -348,35 +413,42 @@
 
   /* Sleeping: Simple breathing - wider eyes (80px × 16px) */
   @keyframes sleeping {
-    0%, 100% { 
-      transform: translateY(0); 
+    0%, 100% {
+      transform: translateY(0);
     }
     /* Inhale - slight rise */
-    50% { 
-      transform: translateY(-8px); 
+    50% {
+      transform: translateY(-8px);
     }
   }
 
   /* ========== Settings Button & Modal ========== */
-  
+
   .settings-btn {
     position: fixed;
     top: 24px;
     right: 24px;
     width: 48px;
     height: 48px;
-    
+    opacity: 0.3;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.1s steps(2);
+    transition: opacity 0.3s steps(6), transform 0.1s steps(2);
     image-rendering: pixelated;
     z-index: 100;
   }
 
+  .settings-btn.auto-hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
   .settings-btn:hover {
     transform: scale(1.1);
+    opacity: 0.8 !important;
+    pointer-events: auto !important;
   }
 
   .settings-btn:active {
@@ -418,7 +490,7 @@
   .settings-panel {
     background: #2a2a3a;
     border: 8px solid #000;
-    box-shadow: 
+    box-shadow:
       8px 8px 0 #000,
       inset 4px 4px 0 rgba(255, 255, 255, 0.1);
     width: 90%;
@@ -653,6 +725,44 @@
     line-height: 1.5;
   }
 
+  .install-command-container {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .install-command {
+    flex: 1;
+    padding: 12px 16px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    background: #0a0a1a;
+    border: 4px solid #4a4;
+    color: #8f8;
+    word-break: break-all;
+    line-height: 1.8;
+    display: block;
+  }
+
+  .copy-btn {
+    padding: 12px 16px;
+    background: #444;
+    border: 4px solid #000;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.1s steps(2);
+    min-width: 60px;
+  }
+
+  .copy-btn:hover {
+    background: #555;
+    transform: translateY(-2px);
+  }
+
+  .copy-btn:active {
+    transform: translateY(0);
+  }
+
   .btn-icon {
     padding: 12px 16px;
     background: #444;
@@ -664,6 +774,86 @@
 
   .btn-icon:hover {
     background: #555;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #fff;
+    user-select: none;
+  }
+
+  .checkbox-label input[type="checkbox"] {
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border: 4px solid #4a4;
+    background: #0a0a1a;
+    cursor: pointer;
+    position: relative;
+    image-rendering: pixelated;
+  }
+
+  .checkbox-label input[type="checkbox"]:checked {
+    background: #4a4;
+  }
+
+  .checkbox-label input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #0a0a1a;
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .checkbox-label input[type="checkbox"]:hover {
+    border-color: #6c6;
+  }
+
+  .manual-install {
+    margin-top: 16px;
+    border: 4px solid #333;
+    background: #1a1a2a;
+  }
+
+  .manual-install summary {
+    padding: 12px 16px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #888;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+
+  .manual-install summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .manual-install summary::before {
+    content: '▶ ';
+    display: inline-block;
+    transition: transform 0.1s steps(2);
+  }
+
+  .manual-install[open] summary::before {
+    transform: rotate(90deg);
+  }
+
+  .manual-install summary:hover {
+    background: #222;
+  }
+
+  .manual-install .setting-group {
+    padding: 16px;
+    padding-top: 0;
   }
 
   .btn-large {
@@ -768,13 +958,13 @@
   let workingStateTimer = null;
   let claudeCodeSessionActive = false;
   let mascotSubscription = null;
-  
+
   // Session and settings
   let session = {
     token: null,
     name: null
   };
-  
+
   let settings = {
     workingTimeout: 5000,
     inactivityTimeout: 120000
@@ -792,8 +982,89 @@
     { name: 'shimmer', duration: 300, weight: 0.6, sync: false },
   ];
 
+  // ========== Sound Effects ==========
+
+  const soundEffects = {
+    enabled: localStorage.getItem('soundEnabled') === 'true',
+    audioContext: null,
+
+    init() {
+      // Create audio context on first user interaction
+      if (!this.audioContext) {
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    },
+
+    playBeep(frequency, duration, type = 'square') {
+      if (!this.enabled) return;
+      this.init();
+
+      const oscillator = this.audioContext.createOscillator();
+      const gainNode = this.audioContext.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(this.audioContext.destination);
+
+      oscillator.type = type;
+      oscillator.frequency.value = frequency;
+
+      // 8-bit style: instant volume changes, no smooth ramping
+      gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+      // Instant cutoff at end for sharp 8-bit sound
+      gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime + duration - 0.01);
+      gainNode.gain.setValueAtTime(0, this.audioContext.currentTime + duration);
+
+      oscillator.start(this.audioContext.currentTime);
+      oscillator.stop(this.audioContext.currentTime + duration);
+    },
+
+    playThinking() {
+      // Two quick beeps (thinking sound)
+      this.playBeep(440, 0.08);
+      setTimeout(() => this.playBeep(554, 0.08), 100);
+    },
+
+    playWorking() {
+      // Triple ascending beep (working/typing sound)
+      this.playBeep(330, 0.06);
+      setTimeout(() => this.playBeep(440, 0.06), 70);
+      setTimeout(() => this.playBeep(550, 0.06), 140);
+    },
+
+    playError() {
+      // Descending error beep
+      this.playBeep(220, 0.15);
+      setTimeout(() => this.playBeep(110, 0.2), 150);
+    },
+
+    playHappy() {
+      // Success chime (ascending arpeggio)
+      this.playBeep(523, 0.08);
+      setTimeout(() => this.playBeep(659, 0.08), 80);
+      setTimeout(() => this.playBeep(784, 0.12), 160);
+    },
+
+    playSleeping() {
+      // Soft descending lullaby
+      this.playBeep(392, 0.2, 'sine');
+      setTimeout(() => this.playBeep(330, 0.3, 'sine'), 200);
+    },
+
+    playWakeUp() {
+      // Quick ascending wake up sound
+      this.playBeep(262, 0.08);
+      setTimeout(() => this.playBeep(392, 0.1), 80);
+    },
+
+    toggle() {
+      this.enabled = !this.enabled;
+      localStorage.setItem('soundEnabled', this.enabled);
+      return this.enabled;
+    }
+  };
+
   // ========== Session Management ==========
-  
+
   async function loadOrCreateSession() {
     // Try to load from localStorage
     const saved = localStorage.getItem('mascotSession');
@@ -801,7 +1072,7 @@
       try {
         session = JSON.parse(saved);
         console.log('Loaded session from localStorage:', session.token?.substring(0, 8) + '...');
-        
+
         // Verify session still exists on server
         const response = await fetch(`/api/sessions/${session.token}`);
         if (response.ok) {
@@ -815,7 +1086,7 @@
         console.error('Failed to parse saved session:', e);
       }
     }
-    
+
     // Create new session
     return await createNewSession();
   }
@@ -827,7 +1098,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: 'My Computer' })
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         session.token = data.token;
@@ -898,12 +1169,19 @@
   // ========== Timer Functions ==========
 
   function resetInactivityTimer() {
-    if (inactivityTimer) clearTimeout(inactivityTimer);
+    if (inactivityTimer) {
+      clearTimeout(inactivityTimer);
+      console.log('[Timer] Cleared inactivity timer');
+    }
     if (!claudeCodeSessionActive) {
+      const timeout = settings.inactivityTimeout;
+      console.log(`[Timer] Setting inactivity timer for ${timeout}ms`);
       inactivityTimer = setTimeout(() => {
-        console.log('Inactivity detected - going to sleep');
-        window.updateMascotState('sleeping');
-      }, settings.inactivityTimeout);
+        console.log('[Timer] Inactivity timeout fired - going to sleep');
+        window.updateMascotState('sleeping', 'InactivityTimeout');
+      }, timeout);
+    } else {
+      console.log('[Timer] Skipping inactivity timer (session active)');
     }
   }
 
@@ -911,25 +1189,77 @@
     if (workingStateTimer) {
       clearTimeout(workingStateTimer);
       workingStateTimer = null;
+      console.log('[Timer] Cleared working state timer');
     }
     if (state === 'thinking' || state === 'working') {
+      const timeout = settings.workingTimeout;
+      console.log(`[Timer] Setting working state timer for ${timeout}ms (state: ${state})`);
       workingStateTimer = setTimeout(() => {
-        console.log(`Working state timeout - returning to idle`);
+        console.log('[Timer] Working state timeout fired - returning to idle');
         window.updateMascotState('idle', 'WorkingTimeout');
-      }, settings.workingTimeout);
+      }, timeout);
+    }
+  }
+
+  // ========== Context Tooltip ==========
+
+  function updateContextTooltip(state, event, tool) {
+    const tooltip = document.getElementById('context-tooltip');
+    if (!tooltip) return;
+
+    let text = '';
+
+    // Generate context based on state and tool
+    if (state === 'thinking' && tool) {
+      text = `Thinking about ${tool}...`;
+    } else if (state === 'working' && tool) {
+      text = `Using ${tool}`;
+    } else if (state === 'error') {
+      text = tool ? `Error in ${tool}` : 'Something went wrong';
+    } else if (event === 'SessionStart') {
+      text = 'Claude Code started';
+    } else if (event === 'SessionEnd') {
+      text = 'Going to sleep...';
+    } else if (state === 'sleeping') {
+      text = 'ZZZ...';
+    }
+
+    // Update tooltip
+    if (text) {
+      tooltip.textContent = text;
+      tooltip.classList.add('visible');
+
+      // Auto-hide after delay (except for sleeping)
+      setTimeout(() => {
+        if (state !== 'sleeping') {
+          tooltip.classList.remove('visible');
+        }
+      }, 3000);
+    } else {
+      tooltip.textContent = '';
+      tooltip.classList.remove('visible');
     }
   }
 
   // ========== State Update ==========
 
-  window.updateMascotState = function(state, event) {
+  window.updateMascotState = function(state, event, tool) {
     const leftEye = document.getElementById('left-eye');
     const rightEye = document.getElementById('right-eye');
 
+    console.log(`[State Update] Event: ${event}, Current: ${currentState}, New: ${state}`);
+
+    // Update session tracking FIRST
     if (event === 'SessionStart') {
       claudeCodeSessionActive = true;
     } else if (event === 'Stop' || event === 'SessionEnd') {
       claudeCodeSessionActive = false;
+    }
+
+    // Don't restart animation if already in this state (unless it's a session control event)
+    if (currentState === state && event !== 'SessionStart' && event !== 'SessionEnd') {
+      console.log(`[State Update] Already in ${state} state, skipping animation restart`);
+      return;
     }
 
     ['state-thinking', 'state-working', 'state-sleeping', 'state-happy', 'state-error'].forEach(cls => {
@@ -945,6 +1275,14 @@
     currentState = state;
     resetWorkingStateTimer(state);
 
+    // Play sound effects for state transitions
+    if (event === 'SessionStart') {
+      soundEffects.playWakeUp();
+    }
+
+    // Update context tooltip
+    updateContextTooltip(state, event, tool);
+
     if (state === 'idle') {
       idleAnimationPaused = false;
       resetInactivityTimer();
@@ -953,6 +1291,31 @@
       if (inactivityTimer) clearTimeout(inactivityTimer);
       leftEye.classList.add('state-sleeping');
       rightEye.classList.add('state-sleeping');
+      soundEffects.playSleeping();
+    } else if (state === 'thinking') {
+      idleAnimationPaused = true;
+      resetInactivityTimer();
+      leftEye.classList.add(`state-${state}`);
+      rightEye.classList.add(`state-${state}`);
+      soundEffects.playThinking();
+    } else if (state === 'working') {
+      idleAnimationPaused = true;
+      resetInactivityTimer();
+      leftEye.classList.add(`state-${state}`);
+      rightEye.classList.add(`state-${state}`);
+      soundEffects.playWorking();
+    } else if (state === 'error') {
+      idleAnimationPaused = true;
+      resetInactivityTimer();
+      leftEye.classList.add(`state-${state}`);
+      rightEye.classList.add(`state-${state}`);
+      soundEffects.playError();
+    } else if (state === 'happy') {
+      idleAnimationPaused = true;
+      resetInactivityTimer();
+      leftEye.classList.add(`state-${state}`);
+      rightEye.classList.add(`state-${state}`);
+      soundEffects.playHappy();
     } else {
       idleAnimationPaused = true;
       resetInactivityTimer();
@@ -994,16 +1357,16 @@
 
     scheduleNext();
     loadSettings();
-    
+
     // Load or create session
     const sessionOk = await loadOrCreateSession();
-    
+
     if (sessionOk && session.token) {
       // Create WebSocket subscription with token
       if (window.createMascotSubscription) {
         mascotSubscription = window.createMascotSubscription(session.token);
       }
-      
+
       // Check current session status
       try {
         const response = await fetch(`/api/hooks/status`, {
@@ -1020,7 +1383,7 @@
         console.error('Failed to fetch session status:', e);
       }
     }
-    
+
     initSettingsPanel();
   });
 
@@ -1033,18 +1396,56 @@
     const saveBtn = document.getElementById('save-settings');
     const downloadBtn = document.getElementById('download-hooks');
     const copyTokenBtn = document.getElementById('copy-token');
+    const copyInstallBtn = document.getElementById('copy-install-btn');
     const regenerateBtn = document.getElementById('regenerate-token');
     const sessionNameInput = document.getElementById('session-name');
     const sessionTokenEl = document.getElementById('session-token');
+    const installCommandEl = document.getElementById('install-command');
     const workingTimeoutInput = document.getElementById('working-timeout');
     const inactivityTimeoutInput = document.getElementById('inactivity-timeout');
+    const soundEnabledCheckbox = document.getElementById('sound-enabled');
     const statusEl = document.getElementById('settings-status');
+
+    // Auto-hide settings button after 10 seconds of inactivity
+    let hideButtonTimer = null;
+    let modalIsOpen = false;
+
+    function resetHideTimer() {
+      // Clear existing timer
+      if (hideButtonTimer) {
+        clearTimeout(hideButtonTimer);
+      }
+
+      // Show button
+      settingsBtn.classList.remove('auto-hidden');
+
+      // Set new timer to hide after 10 seconds (only if modal is closed)
+      if (!modalIsOpen) {
+        hideButtonTimer = setTimeout(() => {
+          settingsBtn.classList.add('auto-hidden');
+        }, 10000);
+      }
+    }
+
+    // Reset timer on mouse movement near button or interaction
+    settingsBtn.addEventListener('mouseenter', resetHideTimer);
+    settingsBtn.addEventListener('click', resetHideTimer);
+
+    // Start initial timer
+    resetHideTimer();
 
     function populateForm() {
       sessionNameInput.value = session.name || '';
       sessionTokenEl.textContent = session.token || 'No session';
+
+      // Generate install command with current domain
+      const baseUrl = window.location.origin;
+      const installCmd = `curl -sSL ${baseUrl}/install/${session.token} | bash`;
+      installCommandEl.textContent = installCmd;
+
       workingTimeoutInput.value = settings.workingTimeout / 1000;
       inactivityTimeoutInput.value = settings.inactivityTimeout / 60000;
+      soundEnabledCheckbox.checked = soundEffects.enabled;
       updateConnectionStatus(mascotSubscription !== null);
     }
 
@@ -1060,16 +1461,28 @@
     settingsBtn.addEventListener('click', () => {
       populateForm();
       settingsModal.classList.add('open');
+      modalIsOpen = true;
+      // Clear hide timer while modal is open
+      if (hideButtonTimer) {
+        clearTimeout(hideButtonTimer);
+      }
     });
 
-    // Close modal
-    closeBtn.addEventListener('click', () => settingsModal.classList.remove('open'));
+    // Close modal handler
+    function closeModal() {
+      settingsModal.classList.remove('open');
+      modalIsOpen = false;
+      // Restart hide timer when modal closes
+      resetHideTimer();
+    }
+
+    closeBtn.addEventListener('click', closeModal);
     settingsModal.addEventListener('click', (e) => {
-      if (e.target === settingsModal) settingsModal.classList.remove('open');
+      if (e.target === settingsModal) closeModal();
     });
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && settingsModal.classList.contains('open')) {
-        settingsModal.classList.remove('open');
+        closeModal();
       }
     });
 
@@ -1078,6 +1491,26 @@
       if (session.token) {
         await navigator.clipboard.writeText(session.token);
         showStatus('✓ TOKEN COPIED!', 'success');
+      }
+    });
+
+    // Copy install command
+    copyInstallBtn.addEventListener('click', async () => {
+      if (session.token) {
+        const installCmd = installCommandEl.textContent;
+        await navigator.clipboard.writeText(installCmd);
+        showStatus('✓ INSTALL COMMAND COPIED!', 'success');
+      }
+    });
+
+    // Toggle sound effects
+    soundEnabledCheckbox.addEventListener('change', () => {
+      soundEffects.toggle();
+      showStatus(soundEffects.enabled ? '🔊 SOUNDS ON' : '🔇 SOUNDS OFF', 'success');
+
+      // Play a test sound when enabled
+      if (soundEffects.enabled) {
+        soundEffects.playHappy();
       }
     });
 
@@ -1163,4 +1596,3 @@
     });
   }
 </script>
-

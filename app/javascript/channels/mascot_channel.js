@@ -30,9 +30,16 @@ window.createMascotSubscription = function (token) {
       },
 
       received(data) {
-        console.log("Mascot state update:", data);
+        console.log("[WebSocket] Received:", {
+          state: data.state,
+          event: data.event,
+          tool: data.tool,
+          timestamp: new Date().toISOString()
+        });
         if (window.updateMascotState) {
-          window.updateMascotState(data.state, data.event);
+          window.updateMascotState(data.state, data.event, data.tool);
+        } else {
+          console.error("[WebSocket] updateMascotState function not found!");
         }
       }
     }

@@ -13,6 +13,9 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   root "home#index"
 
+  # Curl-based installer for hooks
+  get "install/:token", to: "api/sessions#install", as: :install
+
   # API routes for Claude Code hooks
   namespace :api do
     post "hooks/event", to: "hooks#event"
