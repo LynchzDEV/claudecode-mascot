@@ -3,6 +3,71 @@
     <div class="eye left-eye" id="left-eye"></div>
     <div class="eye right-eye" id="right-eye"></div>
   </div>
+
+  <!-- 8-bit Settings Icon -->
+  <button class="settings-btn" id="settings-btn" title="Settings">
+    <svg class="settings-icon" viewBox="0 0 16 16" fill="currentColor">
+      <!-- 8-bit gear icon -->
+      <rect x="6" y="0" width="4" height="2"/>
+      <rect x="6" y="14" width="4" height="2"/>
+      <rect x="0" y="6" width="2" height="4"/>
+      <rect x="14" y="6" width="2" height="4"/>
+      <rect x="2" y="2" width="2" height="2"/>
+      <rect x="12" y="2" width="2" height="2"/>
+      <rect x="2" y="12" width="2" height="2"/>
+      <rect x="12" y="12" width="2" height="2"/>
+      <rect x="4" y="4" width="8" height="8"/>
+      <rect x="6" y="6" width="4" height="4" fill="#D77757"/>
+    </svg>
+  </button>
+
+  <!-- Settings Modal -->
+  <div class="settings-modal" id="settings-modal">
+    <div class="settings-panel">
+      <div class="settings-header">
+        <h2>⚙️ SETTINGS</h2>
+        <button class="close-btn" id="close-settings">✕</button>
+      </div>
+      
+      <div class="settings-content">
+        <div class="setting-group">
+          <label for="mascot-url">MASCOT API URL</label>
+          <input type="text" id="mascot-url" placeholder="http://localhost:3000" />
+          <span class="setting-hint">The URL where your mascot server is running</span>
+        </div>
+
+        <div class="setting-group">
+          <label for="api-token">API TOKEN</label>
+          <input type="password" id="api-token" placeholder="dev_token_change_me" />
+          <span class="setting-hint">Authentication token for the hooks API</span>
+        </div>
+
+        <div class="setting-group">
+          <label for="working-timeout">WORKING TIMEOUT (seconds)</label>
+          <input type="number" id="working-timeout" min="1" max="60" placeholder="5" />
+          <span class="setting-hint">Return to idle if no events after this duration</span>
+        </div>
+
+        <div class="setting-group">
+          <label for="inactivity-timeout">SLEEP TIMEOUT (minutes)</label>
+          <input type="number" id="inactivity-timeout" min="1" max="30" placeholder="2" />
+          <span class="setting-hint">Go to sleep after this duration of inactivity</span>
+        </div>
+
+        <div class="settings-status" id="settings-status"></div>
+
+        <div class="settings-actions">
+          <button class="btn-secondary" id="test-connection">TEST CONNECTION</button>
+          <button class="btn-primary" id="save-settings">SAVE</button>
+        </div>
+
+        <div class="settings-info">
+          <p>📋 Copy this to your shell config:</p>
+          <code id="env-export">export MASCOT_URL="http://localhost:3000"<br/>export MASCOT_TOKEN="dev_token_change_me"</code>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -262,6 +327,249 @@
       transform: translateY(-8px); 
     }
   }
+
+  /* ========== Settings Button & Modal ========== */
+  
+  .settings-btn {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s steps(2);
+    image-rendering: pixelated;
+    z-index: 100;
+  }
+
+  .settings-btn:hover {
+    transform: scale(1.1);
+  }
+
+  .settings-btn:active {
+    transform: scale(0.95);
+  }
+
+  .settings-icon {
+    width: 32px;
+    height: 32px;
+    color: #fff;
+    image-rendering: pixelated;
+  }
+
+  /* Settings Modal */
+  .settings-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    image-rendering: pixelated;
+  }
+
+  .settings-modal.open {
+    display: flex;
+    animation: fadeIn 0.2s steps(4);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .settings-panel {
+    background: #2a2a3a;
+    border: 8px solid #000;
+    box-shadow: 
+      8px 8px 0 #000,
+      inset 4px 4px 0 rgba(255, 255, 255, 0.1);
+    width: 90%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .settings-header {
+    background: #1a1a2a;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 4px solid #000;
+  }
+
+  .settings-header h2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    color: #fff;
+    margin: 0;
+    letter-spacing: 2px;
+  }
+
+  .close-btn {
+    background: #c44;
+    border: 4px solid #000;
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    cursor: pointer;
+    font-family: 'Press Start 2P', monospace;
+    line-height: 1;
+  }
+
+  .close-btn:hover {
+    background: #f55;
+  }
+
+  .settings-content {
+    padding: 24px;
+  }
+
+  .setting-group {
+    margin-bottom: 24px;
+  }
+
+  .setting-group label {
+    display: block;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #aaa;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+  }
+
+  .setting-group input {
+    width: 100%;
+    padding: 12px 16px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    background: #1a1a2a;
+    border: 4px solid #444;
+    color: #fff;
+    box-sizing: border-box;
+  }
+
+  .setting-group input:focus {
+    outline: none;
+    border-color: #D77757;
+    box-shadow: 0 0 0 4px rgba(215, 119, 87, 0.3);
+  }
+
+  .setting-group input::placeholder {
+    color: #555;
+  }
+
+  .setting-hint {
+    display: block;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: #666;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  .settings-status {
+    padding: 12px 16px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    margin-bottom: 16px;
+    display: none;
+    border: 4px solid;
+  }
+
+  .settings-status.success {
+    display: block;
+    background: #1a3a1a;
+    border-color: #2a5a2a;
+    color: #4f4;
+  }
+
+  .settings-status.error {
+    display: block;
+    background: #3a1a1a;
+    border-color: #5a2a2a;
+    color: #f44;
+  }
+
+  .settings-status.loading {
+    display: block;
+    background: #1a2a3a;
+    border-color: #2a4a5a;
+    color: #4af;
+  }
+
+  .settings-actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .btn-primary, .btn-secondary {
+    flex: 1;
+    padding: 14px 20px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    border: 4px solid #000;
+    cursor: pointer;
+    transition: all 0.1s steps(2);
+  }
+
+  .btn-primary {
+    background: #D77757;
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background: #e88868;
+    transform: translateY(-2px);
+  }
+
+  .btn-secondary {
+    background: #444;
+    color: #fff;
+  }
+
+  .btn-secondary:hover {
+    background: #555;
+    transform: translateY(-2px);
+  }
+
+  .btn-primary:active, .btn-secondary:active {
+    transform: translateY(2px);
+  }
+
+  .settings-info {
+    background: #1a1a2a;
+    border: 4px solid #333;
+    padding: 16px;
+  }
+
+  .settings-info p {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: #888;
+    margin: 0 0 12px 0;
+  }
+
+  .settings-info code {
+    display: block;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: #4f4;
+    background: #0a0a1a;
+    padding: 12px;
+    line-height: 2;
+    word-break: break-all;
+  }
 </style>
 
 <script>
@@ -270,8 +578,29 @@
   let inactivityTimer = null;
   let workingStateTimer = null; // Timer for working/thinking state timeout
   let claudeCodeSessionActive = false; // Track if ClaudeCode CLI is running
-  const INACTIVITY_TIMEOUT = 120000; // 2 minutes in milliseconds
-  const WORKING_STATE_TIMEOUT = 5000; // 5 seconds - if no new events, return to idle
+  
+  // Configurable settings (can be updated from settings panel)
+  let settings = {
+    mascotUrl: window.location.origin,
+    apiToken: 'dev_token_change_me',
+    workingTimeout: 5000,      // 5 seconds - return to idle if no events
+    inactivityTimeout: 120000  // 2 minutes - go to sleep
+  };
+
+  // Load settings from localStorage
+  function loadSettings() {
+    const saved = localStorage.getItem('mascotSettings');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        settings = { ...settings, ...parsed };
+        console.log('Loaded settings from localStorage:', settings);
+      } catch (e) {
+        console.error('Failed to parse saved settings:', e);
+      }
+    }
+  }
+  loadSettings();
 
   const animations = [
     { name: 'blink', duration: 150, weight: 8, sync: true },
@@ -340,7 +669,7 @@
       inactivityTimer = setTimeout(() => {
         console.log('Inactivity detected - going to sleep');
         window.updateMascotState('sleeping');
-      }, INACTIVITY_TIMEOUT);
+      }, settings.inactivityTimeout);
     }
   }
 
@@ -357,7 +686,7 @@
       workingStateTimer = setTimeout(() => {
         console.log(`Working state timeout - returning to idle from ${currentState}`);
         window.updateMascotState('idle', 'WorkingTimeout');
-      }, WORKING_STATE_TIMEOUT);
+      }, settings.workingTimeout);
     }
   }
 
@@ -439,5 +768,139 @@
         }
       })
       .catch(error => console.error('Failed to fetch session status:', error));
+
+    // Initialize settings panel
+    initSettingsPanel();
   });
+
+  // ========== Settings Panel Functionality ==========
+  
+  function initSettingsPanel() {
+    const settingsBtn = document.getElementById('settings-btn');
+    const settingsModal = document.getElementById('settings-modal');
+    const closeBtn = document.getElementById('close-settings');
+    const saveBtn = document.getElementById('save-settings');
+    const testBtn = document.getElementById('test-connection');
+    
+    // Form inputs
+    const mascotUrlInput = document.getElementById('mascot-url');
+    const apiTokenInput = document.getElementById('api-token');
+    const workingTimeoutInput = document.getElementById('working-timeout');
+    const inactivityTimeoutInput = document.getElementById('inactivity-timeout');
+    const envExport = document.getElementById('env-export');
+    const statusEl = document.getElementById('settings-status');
+
+    // Load current settings into form
+    function populateForm() {
+      mascotUrlInput.value = settings.mascotUrl || '';
+      apiTokenInput.value = settings.apiToken || '';
+      workingTimeoutInput.value = settings.workingTimeout / 1000; // Convert to seconds
+      inactivityTimeoutInput.value = settings.inactivityTimeout / 60000; // Convert to minutes
+      updateEnvExport();
+    }
+
+    // Update the shell export code
+    function updateEnvExport() {
+      const url = mascotUrlInput.value || window.location.origin;
+      const token = apiTokenInput.value || 'dev_token_change_me';
+      envExport.innerHTML = `export MASCOT_URL="${url}"<br/>export MASCOT_TOKEN="${token}"`;
+    }
+
+    // Show status message
+    function showStatus(message, type) {
+      statusEl.textContent = message;
+      statusEl.className = 'settings-status ' + type;
+      if (type !== 'loading') {
+        setTimeout(() => {
+          statusEl.className = 'settings-status';
+        }, 5000);
+      }
+    }
+
+    // Open settings modal
+    settingsBtn.addEventListener('click', () => {
+      populateForm();
+      settingsModal.classList.add('open');
+    });
+
+    // Close settings modal
+    closeBtn.addEventListener('click', () => {
+      settingsModal.classList.remove('open');
+    });
+
+    // Close on backdrop click
+    settingsModal.addEventListener('click', (e) => {
+      if (e.target === settingsModal) {
+        settingsModal.classList.remove('open');
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && settingsModal.classList.contains('open')) {
+        settingsModal.classList.remove('open');
+      }
+    });
+
+    // Update export code on input change
+    mascotUrlInput.addEventListener('input', updateEnvExport);
+    apiTokenInput.addEventListener('input', updateEnvExport);
+
+    // Test connection
+    testBtn.addEventListener('click', async () => {
+      const url = mascotUrlInput.value || window.location.origin;
+      showStatus('TESTING CONNECTION...', 'loading');
+
+      try {
+        const response = await fetch(`${url}/api/hooks/status`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          showStatus(`✓ CONNECTED! Session: ${data.session_active ? 'ACTIVE' : 'INACTIVE'}`, 'success');
+        } else {
+          showStatus(`✗ ERROR: ${response.status} ${response.statusText}`, 'error');
+        }
+      } catch (error) {
+        showStatus(`✗ CONNECTION FAILED: ${error.message}`, 'error');
+      }
+    });
+
+    // Save settings
+    saveBtn.addEventListener('click', () => {
+      // Validate inputs
+      const workingSec = parseInt(workingTimeoutInput.value) || 5;
+      const inactivityMin = parseInt(inactivityTimeoutInput.value) || 2;
+
+      if (workingSec < 1 || workingSec > 60) {
+        showStatus('Working timeout must be 1-60 seconds', 'error');
+        return;
+      }
+      if (inactivityMin < 1 || inactivityMin > 30) {
+        showStatus('Sleep timeout must be 1-30 minutes', 'error');
+        return;
+      }
+
+      // Update settings
+      settings.mascotUrl = mascotUrlInput.value || window.location.origin;
+      settings.apiToken = apiTokenInput.value || 'dev_token_change_me';
+      settings.workingTimeout = workingSec * 1000;
+      settings.inactivityTimeout = inactivityMin * 60000;
+
+      // Save to localStorage
+      localStorage.setItem('mascotSettings', JSON.stringify(settings));
+
+      showStatus('✓ SETTINGS SAVED!', 'success');
+      console.log('Settings saved:', settings);
+
+      // Close modal after a brief delay
+      setTimeout(() => {
+        settingsModal.classList.remove('open');
+      }, 1500);
+    });
+  }
 </script>
