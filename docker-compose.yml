@@ -1,12 +1,10 @@
-version: '3.8'
-
 services:
   web:
     image: lynchz/claude-mascot:latest
     container_name: claude-mascot
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - '3009:3000'
     environment:
       - RAILS_ENV=production
       - RAILS_LOG_TO_STDOUT=true
@@ -16,7 +14,7 @@ services:
       - ./storage:/app/storage
       - ./log:/app/log
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/']
       interval: 30s
       timeout: 3s
       retries: 3
